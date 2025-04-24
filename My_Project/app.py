@@ -1,12 +1,11 @@
 import os
 import pytesseract
 import fitz  # PyMuPDF
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 from PIL import Image
 import glob
 import io
-
 
 app = Flask(__name__)
 
@@ -66,5 +65,7 @@ def search():
 def download(filename):
     return send_from_directory(DOCUMENTS_FOLDER, filename)
 
+# Fonction pour démarrer l'application
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Lancer l'application sur l'adresse IP 0.0.0.0 (toutes les interfaces réseau) et utiliser un port par défaut (généralement 5000)
+    app.run(host='0.0.0.0', port=os.getenv('PORT', 5000))
