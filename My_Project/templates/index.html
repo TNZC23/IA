@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recherche de Documents</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Ajoute ici ton CSS pour l'apparence de la page, comme dans ta version précédente */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img id="logo" src="{{ url_for('static', filename='logo_nge.png') }}" alt="Logo NGE">
+
+        <h1>🔍 Recherche de Documents</h1>
+
+        <!-- Formulaire de recherche -->
+        <form id="searchForm">
+            <label for="selected_site">📌 Sélectionner un site :</label>
+            <select id="selected_site" name="selected_site">
+                {% for month in months %}
+                    <option value="{{ month }}">{{ month }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="search_term">🔎 Mot-clé :</label>
+            <input type="text" id="search_term" name="search_term" required>
+
+            <button type="submit">Rechercher</button>
+        </form>
+
+        <h2>📂 Résultats :</h2>
+        <ul id="resultsList"></ul>
+    </div>
+
+    <div class="footer">
+        <h3> &copy; 2025 Tout droit réservé DRLPC.</h3>
+    </div>
+
+    <script>
+        document.getElementById('searchForm').onsubmit = async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = "<li>⏳ Recherche en cours...</li>"; 
+            
+            const response = await fetch('/search', { method: 'POST', body: formData });
+    
+            resultsList.innerHTML = ''; 
+    
+            const data = await response.json(); 
+    
+            if (data.length === 0) {
+                resultsList.innerHTML = "<li>Aucun résultat trouvé.</li>";
+                return;
+            }
+    
+            data.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `📄 <a href="${item.link}" target="_blank">${item.title}</a>
+                                      <button onclick="viewDocument('${item.link}')">Voir</button>
+                                      <button onclick="downloadDocument('${item.download_link}')">Télécharger</button>`;
+                resultsList.appendChild(listItem);
+            });
+        };
+    
+        function viewDocument(link) {
+            // Redirige vers la route Flask pour afficher le document
+            window.open(`/view_document?url=${encodeURIComponent(link)}`, "_blank");
+        }
+    
+        function downloadDocument(downloadLink) {
+            window.location.href = downloadLink;
+        }
+    </script>
+</body>
+</html>
